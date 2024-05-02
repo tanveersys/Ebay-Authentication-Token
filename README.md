@@ -11,7 +11,6 @@ install the required dependency: Install-Package eBay.OAuth.Client
 
 * **Simplified Token Retrieval:** Dedicated methods streamline acquiring access tokens for various grant flows, such as Client Credentials and Authorization Code.
 * **Enhanced Maintainability:** Core token fetching logic is segregated from application-specific logic, promoting cleaner code organization.
-* **Optional Caching:** This class offers the flexibility to implement in-memory or external caching for potentially faster token retrieval (implementation guidance provided).
 * **Clean Code & Dependency Injection:** The code adheres to a clean structure and utilizes dependency injection, facilitating testing and integration.
 
 **Usage:**
