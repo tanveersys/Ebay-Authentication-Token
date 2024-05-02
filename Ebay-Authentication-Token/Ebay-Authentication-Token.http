@@ -1,0 +1,6 @@
+@Ebay_Authentication_Token_HostAddress = http://localhost:5189
+
+GET {{Ebay_Authentication_Token_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
