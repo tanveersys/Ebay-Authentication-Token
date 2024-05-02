@@ -22,11 +22,11 @@ builder.Services.AddSingleton<IOAuthConfiguration, OAuthConfiguration>();
 
 **Configuration**
 Configure the EbayConfig section in your appsettings.json file to provide the following credentials:
-Environment: The eBay environment (e.g., "sandbox" or "production")
-ClientId: Your eBay application's client ID
-CertId: Your eBay application's certificate ID (optional for some flows)
-DevId: Your eBay developer ID
-RedirectUri: The redirect URI configured in your eBay application settings (optional for Authorization Code Grant)
+* Environment: The eBay environment (e.g., "sandbox" or "production")
+* ClientId: Your eBay application's client ID
+* CertId: Your eBay application's certificate ID (optional for some flows)
+* DevId: Your eBay developer ID
+* RedirectUri: The redirect URI configured in your eBay application settings (optional for Authorization Code Grant)
 2.Injecting the Token Provider:
 Inject IEbayTokenProvider into your controllers or services where you need to interact with the eBay API:
 
