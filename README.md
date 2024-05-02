@@ -7,7 +7,7 @@ This document details the EbayOAuthTokenProvider class, designed to streamline t
 **Dependency**
 install the required dependency: Install-Package eBay.OAuth.Client
 
-## Key Features
+**Key Features**
 
 * **Simplified Token Retrieval:** Dedicated methods streamline acquiring access tokens for various grant flows, such as Client Credentials and Authorization Code.
 * **Enhanced Maintainability:** Core token fetching logic is segregated from application-specific logic, promoting cleaner code organization.
@@ -16,61 +16,61 @@ install the required dependency: Install-Package eBay.OAuth.Client
 
 **Usage:**
 1.Dependency Injection:
-builder.Services.AddSingleton<IOAuthConfiguration>(config => new OAuthConfiguration(config.GetSection("EbayConfig")));
-builder.Services.AddSingleton<OAuth2Api>(/* Implementation to create OAuth2Api instance */); // Replace with actual logic
+builder.Services.Configure<EbayConfiguration>(builder.Configuration.GetSection("EbayConfig"));
+builder.Services.AddSingleton<OAuth2Api>();
 builder.Services.AddSingleton<IEbayTokenProvider, EbayOAuthTokenProvider>();
+builder.Services.AddSingleton<IOAuthConfiguration, OAuthConfiguration>();
 
-2.Injecting the Token Provider:
-Inject IEbayTokenProvider into your controllers or services where you need to interact with the eBay API:
-
-public class ProductsController : ControllerBase
-{
-    private readonly IEbayTokenProvider _tokenProvider;
-
-    public ProductsController(IEbayTokenProvider tokenProvider)
-    {
-        _tokenProvider = tokenProvider;
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetProductsAsync()
-    {
-        // 1. Get the access token
-        var tokenResponse = await _tokenProvider.GetAccessTokenAsync();
-        if (tokenResponse?.AccessToken?.Token == null)
-        {
-            return BadRequest("Failed to retrieve access token");
-        }
-
-        // 2. Construct your API request with the access token
-        string accessToken = tokenResponse.AccessToken.Token;
-        string baseUrl = "https://api.ebay.com/v1/"; // Replace with specific API endpoint URL
-        string resource = "sell/listing"; // Replace with specific resource endpoint
-
-        using (var httpClient = new HttpClient())
-        {
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetAsync(baseUrl + resource);
-
-            if (response.IsSuccessStatusCode)
-            {
-                // Process the API response
-                var content = await response.Content.ReadAsStringAsync();
-                // ...
-                return Ok(content);
-            }
-            else
-            {
-                return StatusCode(response.StatusCode, response.ReasonPhrase);
-            }
-        }
-    }
-}
-
-Configuration
+**Configuration**
 Configure the EbayConfig section in your appsettings.json file to provide the following credentials:
 Environment: The eBay environment (e.g., "sandbox" or "production")
 ClientId: Your eBay application's client ID
 CertId: Your eBay application's certificate ID (optional for some flows)
 DevId: Your eBay developer ID
 RedirectUri: The redirect URI configured in your eBay application settings (optional for Authorization Code Grant)
+2.Injecting the Token Provider:
+Inject IEbayTokenProvider into your controllers or services where you need to interact with the eBay API:
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductsController : ControllerBase
+    {
+        private readonly IEbayTokenProvider _tokenProvider;
+
+        public ProductsController(IEbayTokenProvider tokenProvider)
+        {
+            _tokenProvider = tokenProvider;
+        }
+
+        public async Task<IActionResult> GetProductsAsync()
+        {
+            // 1. Get Access Token
+            var tokenResponse = _tokenProvider.GetAccessTokenAsync();
+
+            if (tokenResponse.AccessToken != null)
+            {
+                // 2. Use the access token in your API call
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken.Token);
+
+                // Replace with your actual eBay API call URL and logic
+                var response = await httpClient.GetAsync("https://api.ebay.com/v1/products");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var products = await response.Content.ReadAsStringAsync();
+                    return Ok(products);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                }
+            }
+            else
+            {
+                return BadRequest("Failed to retrieve access token");
+            }
+        }
+    }
+
+
